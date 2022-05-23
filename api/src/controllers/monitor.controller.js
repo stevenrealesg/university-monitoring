@@ -13,20 +13,23 @@ const getAll = (req, res) => {
 }
 
 const add = (req, res) => {
-    const { names, last_names, photo, academy_program, semester, dni, email, phone } = req.body
-    db.query(
-        'INSERT INTO monitors (names, last_names, photo, academy_program, semester, dni, email, phone) VALUES (?,?,?,?,?,?,?,?)',
-        [names, last_names, photo, academy_program, semester, dni, email, phone],
-        (error, results) => {
-            if (error) {
-                console.log("error when saving monitor.", error)
-                res.status(500).json({ status: 'Error', message: "Error al guardar el monitor." })
-            }
+    console.log(req.body)
+    console.log(req.file)
+    res.status(200).json({ status: 'OK', message: "Monitor agregado correctamente." })
+    // const { names, last_names, photo, academy_program, semester, dni, email, phone } = req.body
+    // db.query(
+    //     'INSERT INTO monitors (names, last_names, photo, academy_program, semester, dni, email, phone) VALUES (?,?,?,?,?,?,?,?)',
+    //     [names, last_names, photo, academy_program, semester, dni, email, phone],
+    //     (error, results) => {
+    //         if (error) {
+    //             console.log("error when saving monitor.", error)
+    //             res.status(500).json({ status: 'Error', message: "Error al guardar el monitor." })
+    //         }
 
-            res.status(200).json({ status: 'OK', message: "Monitor guardado correctamente." })
+    //         res.status(200).json({ status: 'OK', message: "Monitor guardado correctamente." })
 
-        }
-    )
+    //     }
+    // )
 }
 const update = (req, res) => {
     const { id } = req.params
