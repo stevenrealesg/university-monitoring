@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const path = require('path')
 const routeMonitor = require('./routes/monitor.route');
+const routeLogin = require('./routes/login.route');
 
 dotenv.config();
 const port = process.env.PORT || 3000
@@ -19,6 +20,7 @@ app.get('/', (req, res) => {
     res.send('Server online!')
 })
 
+app.use('/login', routeLogin)
 app.use('/monitor', routeMonitor)
 
 app.listen(port, () => {

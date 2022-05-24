@@ -5,7 +5,6 @@ const storage = multer.diskStorage({
         cb(null, './src/public/images/')
     },
     filename: function (req, file, cb) {
-        console.log(file)
         cb(null, `${dateNow}_${file.originalname}`)
     }
 })

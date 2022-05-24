@@ -13,8 +13,12 @@ function FormMonitor({ setGetAgain, userToUpdate }) {
     const [semester, setSemester] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
+    const [user, setUser] = useState("")
+    const [password, setPassword] = useState("")
     const [error, setError] = useState(null)
     const [saved, setSaved] = useState(false)
+
+    const URL_API = process.env.REACT_APP_URL_API || 'http://localhost:3000'
 
     useEffect(() => {
         photo && setPhotoUrlPreview(URL.createObjectURL(photo))
@@ -37,6 +41,7 @@ function FormMonitor({ setGetAgain, userToUpdate }) {
             setEmail(userToUpdate.email)
             setPhone(userToUpdate.phone)
             setSemester(userToUpdate.semester.toString())
+            userToUpdate.photo ? setPhotoUrlPreview(`${URL_API}/static/images/${userToUpdate.photo}`) : setPhotoUrlPreview(userDefault)
         }
     }, [userToUpdate])
 
@@ -53,6 +58,8 @@ function FormMonitor({ setGetAgain, userToUpdate }) {
             formData.append('semester', semester)
             formData.append('dni', dni)
             formData.append('photo', photo)
+            formData.append('user', user)
+            formData.append('password', password)
             const created = await serviceMonitor.save(formData)
             if (created) {
                 setGetAgain(prev => !prev)
@@ -77,6 +84,7 @@ function FormMonitor({ setGetAgain, userToUpdate }) {
             formData.append('semester', semester)
             formData.append('dni', dni)
             formData.append('photo', photo)
+            photo && formData.append('update_photo', true)
             const created = await serviceMonitor.update(userToUpdate.id, formData)
             if (created) {
                 setGetAgain(prev => !prev)
@@ -94,6 +102,8 @@ function FormMonitor({ setGetAgain, userToUpdate }) {
     const handlechangeSemester = (event) => { setSemester(event.target.value) }
     const handlechangeEmail = (event) => { setEmail(event.target.value) }
     const handlechangePhone = (event) => { setPhone(event.target.value) }
+    const handlechangeUser = (event) => { setUser(event.target.value) }
+    const handlechangePassword = (event) => { setPassword(event.target.value) }
 
     const handleChangePhoto = (event) => {
         setPhoto(event.target.files[0])
@@ -121,12 +131,18 @@ function FormMonitor({ setGetAgain, userToUpdate }) {
         if (!dni.trim()) {
             return "Debe ingresar el documento de identificación"
         }
+        if (!userToUpdate && !user.trim()) {
+            return "Debe ingresar el usuario"
+        }
+        if (!userToUpdate && !password.trim()) {
+            return "Debe ingresar la contraseña"
+        }
 
         return null
     }
 
     const resetForm = () => {
-        document.getElementById('formFile').value = null
+        document.querySelector('input[type="file"]').value = null
         setNames("")
         setLastNames("")
         setDni("")
@@ -134,6 +150,8 @@ function FormMonitor({ setGetAgain, userToUpdate }) {
         setSemester("")
         setEmail("")
         setPhone("")
+        setUser("")
+        setPassword("")
         setPhoto(null)
         setPhotoUrlPreview(null)
         setError(null)
@@ -172,9 +190,20 @@ function FormMonitor({ setGetAgain, userToUpdate }) {
                 </div>
             </div>
             <div className="col-6">
+                {!userToUpdate &&
+                    <>
+                        <div className="mb-3">
+                            <label className="form-label">Usuario:</label>
+                            <input type="text" className="form-control" value={user} onChange={handlechangeUser} />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Contraseña:</label>
+                            <input type="password" className="form-control" value={password} onChange={handlechangePassword} />
+                        </div>
+                    </>}
                 <div className="mb-3">
-                    <label htmlFor="formFile" className="form-label">Seleccionar foto.</label>
-                    <input className="form-control" type="file" id="formFile" accept="image/*" onChange={handleChangePhoto} />
+                    <label className="form-label">Seleccionar foto.</label>
+                    <input className="form-control" type="file" accept="image/*" onChange={handleChangePhoto} />
                 </div>
                 <div className="text-center">
                     <p>Vista previa:</p>
