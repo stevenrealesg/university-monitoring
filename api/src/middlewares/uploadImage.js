@@ -1,12 +1,12 @@
 const multer = require('multer');
-
+const dateNow = new Date().getTime()
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, './public/images')
+        cb(null, './src/public/images/')
     },
     filename: function (req, file, cb) {
         console.log(file)
-        cb(null, (new Date.now()) + file.originalname)
+        cb(null, `${dateNow}_${file.originalname}`)
     }
 })
 

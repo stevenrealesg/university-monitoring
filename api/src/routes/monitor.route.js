@@ -5,7 +5,7 @@ const upload = require("../middlewares/uploadImage")
 
 route.get('/', ctrlMonitor.getAll )
 route.post('/add', upload.single("photo"), ctrlMonitor.add )
-route.put('/update/:id', ctrlMonitor.update )
+route.put('/update/:id', upload.single("photo"), ctrlMonitor.update )
 route.delete('/delete/:id', ctrlMonitor.remove )
 
 module.exports = route;

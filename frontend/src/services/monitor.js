@@ -14,15 +14,6 @@ const getAll = async () => {
 
 const save = async (data) => {
     try {
-        // const formData = new FormData()
-        // formData.append('names', data.names)
-        // formData.append('last_names', data.last_names)
-        // formData.append('email', data.email)
-        // formData.append('phone', data.phone)
-        // formData.append('academy_program', data.academy_program)
-        // formData.append('semester', data.semester)
-        // formData.append('dni', data.dni)
-        // formData.append('photo', data.photo,'form-data')
         await axios.post(`${URL_API}/monitor/add`, data)
         return true
     } catch (error) {
@@ -31,5 +22,24 @@ const save = async (data) => {
     }
 }
 
-const exportedObject = { getAll, save }
+const remove = async (id) => {
+    try {
+        await axios.delete(`${URL_API}/monitor/delete/${id}`)
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}
+
+const update = async (id, data) => {
+    try {
+        await axios.put(`${URL_API}/monitor/update/${id}`, data)
+        return true
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}
+
+const exportedObject = { getAll, save, remove, update }
 export default exportedObject

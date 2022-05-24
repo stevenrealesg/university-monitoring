@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import userDefault from "../../images/user-default.png";
 import serviceMonitor from "../../services/monitor";
 
-function FormMonitor() {
+function FormMonitor({ setGetAgain, userToUpdate }) {
 
     const [photo, setPhoto] = useState(null);
+    const [photoUrlPreview, setPhotoUrlPreview] = useState(null);
     const [names, setNames] = useState("");
     const [last_names, setLastNames] = useState("");
     const [dni, setDni] = useState("");
@@ -12,21 +13,78 @@ function FormMonitor() {
     const [semester, setSemester] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
+    const [error, setError] = useState(null)
+    const [saved, setSaved] = useState(false)
+
+    useEffect(() => {
+        photo && setPhotoUrlPreview(URL.createObjectURL(photo))
+    }, [photo])
+
+    useEffect(() => {
+        if (saved) {
+            setTimeout(() => {
+                setSaved(false)
+            }, 5000);
+        }
+    }, [saved])
+
+    useEffect(() => {
+        if (userToUpdate) {
+            setNames(userToUpdate.names)
+            setLastNames(userToUpdate.last_names)
+            setDni(userToUpdate.dni.toString())
+            setAcademyProgram(userToUpdate.academy_program)
+            setEmail(userToUpdate.email)
+            setPhone(userToUpdate.phone)
+            setSemester(userToUpdate.semester.toString())
+        }
+    }, [userToUpdate])
 
     const handleSubmit = async (event) => {
         event.preventDefault()
-        const created = await serviceMonitor.save({
-            names,
-            last_names,
-            dni,
-            photo,
-            academy_program,
-            semester,
-            email,
-            phone
-        })
-        console.log(created)
+        const error = getError()
+        if (!error) {
+            const formData = new FormData()
+            formData.append('names', names)
+            formData.append('last_names', last_names)
+            formData.append('email', email)
+            formData.append('phone', phone)
+            formData.append('academy_program', academy_program)
+            formData.append('semester', semester)
+            formData.append('dni', dni)
+            formData.append('photo', photo)
+            const created = await serviceMonitor.save(formData)
+            if (created) {
+                setGetAgain(prev => !prev)
+                setSaved(true)
+                resetForm()
+            }
+        } else {
+            setError(error)
+        }
+    }
 
+    const handleUpdate = async (event) => {
+        event.preventDefault()
+        const error = getError()
+        if (!error) {
+            const formData = new FormData()
+            formData.append('names', names)
+            formData.append('last_names', last_names)
+            formData.append('email', email)
+            formData.append('phone', phone)
+            formData.append('academy_program', academy_program)
+            formData.append('semester', semester)
+            formData.append('dni', dni)
+            formData.append('photo', photo)
+            const created = await serviceMonitor.update(userToUpdate.id, formData)
+            if (created) {
+                setGetAgain(prev => !prev)
+                setSaved(true)
+            }
+        } else {
+            setError(error)
+        }
     }
 
     const handlechangeNames = (event) => { setNames(event.target.value) }
@@ -38,11 +96,51 @@ function FormMonitor() {
     const handlechangePhone = (event) => { setPhone(event.target.value) }
 
     const handleChangePhoto = (event) => {
-        setPhoto(URL.createObjectURL(event.target.files[0]))
+        setPhoto(event.target.files[0])
+    }
+
+    const getError = () => {
+        if (!names.trim()) {
+            return "Debe ingresar nombre"
+        }
+        if (!last_names.trim()) {
+            return "Debe ingresar apellidos"
+        }
+        if (!academy_program.trim()) {
+            return "Debe ingresar el programa académico"
+        }
+        if (!semester.trim()) {
+            return "Debe ingresar el semestre"
+        }
+        if (!email.trim()) {
+            return "Debe ingresar el correo"
+        }
+        if (!phone.trim()) {
+            return "Debe ingresar el teléfono"
+        }
+        if (!dni.trim()) {
+            return "Debe ingresar el documento de identificación"
+        }
+
+        return null
+    }
+
+    const resetForm = () => {
+        document.getElementById('formFile').value = null
+        setNames("")
+        setLastNames("")
+        setDni("")
+        setAcademyProgram("")
+        setSemester("")
+        setEmail("")
+        setPhone("")
+        setPhoto(null)
+        setPhotoUrlPreview(null)
+        setError(null)
     }
 
     return (
-        <form className="row" onSubmit={handleSubmit}>
+        <form className="row p-2" onSubmit={handleSubmit}>
             <div className="col-6">
                 <div className="mb-3">
                     <label className="form-label">Documento de identificación:</label>
@@ -80,12 +178,24 @@ function FormMonitor() {
                 </div>
                 <div className="text-center">
                     <p>Vista previa:</p>
-                    <img src={photo || userDefault} width={250} className="img-thumbnail" alt="preview" />
+                    <img src={photoUrlPreview || userDefault} width={250} className="img-thumbnail" alt="preview" />
                 </div>
             </div>
+            {error &&
+                <div className="alert alert-warning d-flex align-items-center" role="alert">
+                    <i className="bi bi-exclamation-diamond-fill me-2"></i> {error}
+                </div>}
+            {saved &&
+                <div className="alert alert-success d-flex align-items-center" role="alert">
+                    <i className="bi bi-check-circle-fill me-2"></i> Información registrada correctamente.
+                </div>}
             <div className="d-flex justify-content-end">
-                <button type="button" className="btn btn-secondary me-2">Cancelar</button>
-                <button type="submit" className="btn btn-primary">Guardar</button>
+                {!userToUpdate && <button type="button" className="btn btn-secondary me-2" onClick={() => resetForm()}>Limpiar</button>}
+
+                {!userToUpdate
+                    ? <button type="submit" className="btn btn-primary">Guardar</button>
+                    : <button type="button" className="btn btn-warning" onClick={handleUpdate}>Editar</button>
+                }
             </div>
         </form>
     );

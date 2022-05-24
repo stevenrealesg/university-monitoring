@@ -1,17 +1,18 @@
-function Modal({ title, children, buttonContent, buttonType, onClick }) {
+function Modal({ id = "modal", title, children, buttonContent, buttonType, onClick, prevIconTag }) {
     return (
         <>
             <button
                 type="button"
-                className={`btn btn-${buttonType} mt-3`}
-                data-bs-toggle="modal"
-                data-bs-target="#modal"
+                className={`btn btn-${buttonType}`}
+                data-bs-toggle={"modal"}
+                data-bs-target={`#${id}`}
                 onClick={onClick}
             >
+                {prevIconTag && <i className={`bi bi-${prevIconTag} me-1`}></i>}
                 {buttonContent}
             </button>
 
-            <div className="modal fade" id="modal" aria-labelledby="modalTitle" aria-hidden="true">
+            <div className="modal fade" id={id} aria-labelledby="modalTitle" aria-hidden="true">
                 <div className="modal-dialog modal-xl">
                     <div className="modal-content" style={{ overflow: "hidden" }}>
                         <div className="modal-header">
